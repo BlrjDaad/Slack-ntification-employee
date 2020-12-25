@@ -59,6 +59,7 @@ class Profile(AbstractBaseUser):
         default=COUNTRY[0][0]
     )
     is_active = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
     is_responsible = models.BooleanField(default=False)
     is_employee = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
@@ -82,8 +83,17 @@ class Meal(models.Model):
 
 
 class PlannedMenu(models.Model):
-        planned_date = models.DateField(_('date joined'), default=timezone.now)
-        meals = models.ManyToManyField(Meal)
+    planned_date = models.DateField(_('date joined'), default=timezone.now)
+    uuid_menu = models.CharField(
+        verbose_name=_('UUID Menu'),
+        blank=False,
+        null=False,
+        editable=False,
+        unique=True,
+        max_length=50,
+        default=str(uuid.uuid4())
+    )
+    meals = models.ManyToManyField(Meal)
 
 
 class Responsible(models.Model):
@@ -97,13 +107,10 @@ class Responsible(models.Model):
 
 
 class Employee(models.Model):
-    uuid = models.CharField(
-        verbose_name=_('UUID Employee'),
-        blank=False,
-        null=False,
-        editable=False,
-        max_length=50,
-        default=str(uuid.uuid4())
-    )
+    customizations = models.CharField(
+        verbose_name=_('Employee customizations'),
+        max_length=255,
+        null=True,
+        blank=True)
     user = models.OneToOneField(Profile, on_delete=models.CASCADE)
     preferred_meal = models.OneToOneField(Meal, null=True, on_delete=models.PROTECT)

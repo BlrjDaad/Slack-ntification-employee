@@ -1,2 +1,45 @@
 {% extends "includes/base.html" %}
-{% block page_content %} HEllo Employee {% endblock %}
+{% load static i18n %}
+{% block page_header %} Dashboard Employee {% endblock %}
+{% block page_content %}
+
+<h3>Your Favorite meal</h3>
+<h3>custmizations</h3>
+
+<form class="form-horizontal" role="form" action="" method="post"
+      enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel">
+                <div class="panel-content">
+
+                    <br>
+                    <div class="form-group">
+                        {{ form.preferred_meal }}
+                    </div>
+                    {% if form.preferred_meal.errors %}
+                    <div class="form-error">
+                        {{ form.preferred_meal.errors.as_text }}
+                    </div>
+                    {% endif %}
+                    <div class="form-group">
+                        {{ form.customizations }}
+                    </div>
+                    {% if form.customizations.errors %}
+                    <div class="form-error">
+                        {{ form.customizations.errors.as_text }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="form-group" style="text-align: center">
+                <button  class="btn btn-primary" type="submit">{% trans "Submit" %}</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+{% endblock %}

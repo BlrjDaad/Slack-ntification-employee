@@ -1,2 +1,45 @@
 {% extends "includes/base.html" %}
-{% block page_content %} HEllo {% endblock %}
+{% load static i18n %}
+
+
+{% block title %}
+{% trans "Dashboard" %}
+{% endblock %}
+{% block page_header %}Dashboard{% endblock %}
+{% block page_content %}
+<form action="{% url 'send_reminder' %}" method="post" style="float: right;">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-info">
+        SEND THE REMINDER
+    </button>
+</form>
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col"></th>
+        <th scope="col">First name</th>
+        <th scope="col">Last name</th>
+        <th scope="col">Country</th>
+        <th scope="col">favorite meal</th>
+        <th scope="col">customizations</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for employee in employees %}
+    <tr>
+        <th scope="row"></th>
+        <td>{{ employee.user.first_name }}</td>
+        <td>{{ employee.user.last_name }}</td>
+        <td>{{ employee.user.country }}</td>
+        <td>{% if employee.preferred_meal %} ({{ employee.preferred_meal.principal_meal }},
+            {{ employee.preferred_meal.salad }}, {{ employee.preferred_meal.dessert }})
+            {% else %} No favorite meal {% endif %}</td>
+        <td>{% if employee.customizations %} {{ employee.customizations }}
+            {% else %} No customizations {% endif %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+{% block extra_js %}
+{% endblock %}

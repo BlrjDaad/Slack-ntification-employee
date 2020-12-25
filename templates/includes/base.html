@@ -1,20 +1,41 @@
 {% load static i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 {% get_available_languages as languages %}
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>{% block page_title %}{% endblock %}</title>
     <meta name="robots" content="noindex, nofollow">
-    {% block css %}{% endblock %}
-</head>
-<body>
-{% block left_aside_menu %}{% endblock %}
-{% block profile_menu %}{% endblock %}
-{% block page_content %}{% endblock %}
-</body>
-{% block js %}
+    <link rel="shortcut icon" href="https://s.cornershopapp.com/static/landings/img/favicon.ico">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    {% block css %}
 
+    {% endblock %}
+</head>
+<body class="row">
+<div class="col-md-2">
+    {% if request.user.is_authenticated %}
+    {% include 'includes/left_side_menu.html' %}
+
+    {% endif %}
+</div>
+<div class="col-md-9">
+
+    <h4> {% block page_header %}
+        {% endblock %}</h4>
+    <hr>
+{% include 'includes/messages.html' %}
+    {% block page_content %}
+
+    {% endblock %}
+</div>
+<div class="col-md-1"></div>
+</body>
+{% block modals %}
+{% endblock %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+{% block js %}
 {% endblock %}
 </html>

@@ -1,0 +1,18 @@
+{% extends "includes/base.html" %}
+{% load static i18n %}
+{% block title %}
+{% trans "Today's Menu" %}
+{% endblock %}
+{% block page_header %}Menu{% endblock %}
+{% block page_content %}
+<p> Hello! </p>
+<p>  I share with you today's menu :)</p>
+
+{% for meal in menu_of_day.meals.all %}
+<p>    Option : {{ meal.principal_meal }} , {{ meal.salad }}, {{ meal.dessert}}
+</p>
+{% endfor %}
+<p>
+     Have a nice day!
+</p>
+{% endblock %}

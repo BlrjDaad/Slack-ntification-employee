@@ -1,0 +1,38 @@
+{% extends "includes/base.html" %}
+{% load static i18n %}
+
+
+{% block title %}
+{% trans "Dashboard" %}
+{% endblock %}
+{% block page_header %}Dashboard Admin{% endblock %}
+{% block page_content %}
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col"></th>
+        <th scope="col">First name</th>
+        <th scope="col">Last name</th>
+        <th scope="col">Country</th>
+        <th scope="col">Email</th>
+        <th scope="col">Employee</th>
+        <th scope="col">Responsible</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for profile in profiles %}
+    <tr>
+        <th scope="row"></th>
+        <td>{{ profile.first_name }}</td>
+        <td>{{ profile.last_name }}</td>
+        <td>{{ profile.country }}</td>
+        <td>{{ profile.email }}</td>
+        <td>{{ profile.is_employee }}</td>
+        <td>{{ profile.is_responsible }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+{% block extra_js %}
+{% endblock %}

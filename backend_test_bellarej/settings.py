@@ -139,5 +139,5 @@ STATICFILES_DIRS = [
 ]
 
 # Slack identifier
-SLACK_BOT_TOKEN = os.environ.get('xoxb-1589918038997-1605721156897-QBzwWobDRnkgxP9sh5t4gmKR')
+SLACK_BOT_TOKEN = os.environ.get('SLACK_APP_TOKEN')
 CHANNEL_ID = os.environ.get('SLACK_APP_CHANNEL')
