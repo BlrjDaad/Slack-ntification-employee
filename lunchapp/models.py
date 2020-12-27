@@ -1,12 +1,13 @@
 from django.contrib.auth.models import AbstractBaseUser, UserManager
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from .constants import COUNTRY, LANG_TYPE
-from .utils import send_msg_with_the_menu
+from slack import WebClient
 
-import datetime
+from .constants import COUNTRY, LANG_TYPE
+from .utils import logger
 import uuid
 
 
@@ -99,11 +100,20 @@ class PlannedMenu(models.Model):
 class Responsible(models.Model):
     user = models.OneToOneField(Profile, on_delete=models.CASCADE)
 
-    def send_slack_reminder(self):
-        today_menu = PlannedMenu.objects.get(planned_date=
-                                             datetime.datetime.now().strftime("%d/%M/%Y"))
-        # TODO send msg only for chilean employees
-        send_msg_with_the_menu(today_menu.id)
+    def send_msg_with_the_menu(self, message):
+        """
+        Send Message reminder to all slack user with the day menu
+        :param message: the message to send
+        :return: True if there's no error in the sending process else False
+        """
+        try:
+            slack_client = WebClient(settings.SLACK_BOT_TOKEN)
+            slack_client.chat_postMessage(channel=settings.CHANNEL_ID, text=message)
+            logger.info("Slack reminder sent")
+            return True
+        except Exception as e:
+            logger.error("Error in sending slack reminder %s" % e)
+            return False
 
 
 class Employee(models.Model):

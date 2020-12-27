@@ -7,7 +7,7 @@
 {% endblock %}
 {% block page_header %}Dashboard{% endblock %}
 {% block page_content %}
-<form action="{% url 'send_reminder' %}" method="post" style="float: right;">
+<form action="{% url 'send_reminder' request.user.pk %}" method="post" style="float: right;">
     {% csrf_token %}
     <button type="submit" class="btn btn-info">
         SEND THE REMINDER

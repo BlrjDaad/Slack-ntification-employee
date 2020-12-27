@@ -1,0 +1,6 @@
+export DATABASE_NAME=corner
+export DATABASE_USER=backend
+export DATABASE_HOST=localhost
+export DATABASE_PASSWORD=backend
+export SLACK_APP_TOKEN=xoxb-1589918038997-1605721156897-QBzwWobDRnkgxP9sh5t4gmKR
+export SLACK_APP_CHANNEL=#evenement

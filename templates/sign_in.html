@@ -1,61 +1,41 @@
-{% extends "includes/base.html" %}
 {% load static i18n %}
-{% block css %}
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-{% endblock %}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 
-{% block title %}
+<title>
     {% trans "Login account" %}
-{% endblock %}
+</title>
 
-{% block page_content %}
-    <!-- BEGIN LOGIN BOX -->
+<div class="row">
+    <div class="col-sm-3 col-md-6 col-md-offset-3">
+        <div>
+            <a>
+                <img width="250" src="{% static 'img/corner.jpg' %}"/>
+            </a>
+            <h2>{% trans "Log in to your account Cornershop"%}</h2>
+            <form role="form" action="" method="post">
+                {% csrf_token %}
 
-    <div class="row">
-        <div class="col-sm-3 col-md-6 col-md-offset-3">
-            <div>
-                <a>
-                    <img width="250" src="{% static 'img/corner.jpg' %}"/>
-                </a>
-                    <h2>{% trans "Log in to your account Cornershop"%}</h2>
-                <form role="form" action="" method="post">
-                    {% csrf_token %}
-
-                    <div class="append-icon">
-                        {{ form.username }}
-                        <i class="icon-envelope"></i>
-                        {% if form.username.errors %}
-                            <div class="form-error">
-                                {{ form.username.errors.as_text }}
-                            </div>
-                        {% endif %}
+                <div class="append-icon">
+                    {{ form.username }}
+                    <i class="icon-envelope"></i>
+                    {% if form.username.errors %}
+                    <div class="form-error">
+                        {{ form.username.errors.as_text }}
                     </div>
-                    <div class="append-icon m-b-20">
-                        {{ form.password }}
-                        <i class="icon-lock"></i>
-                        {% if form.password.errors %}
-                            <div class="form-error">
-                                {{ form.password.errors.as_text }}
-                            </div>
-                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="append-icon m-b-20">
+                    {{ form.password }}
+                    <i class="icon-lock"></i>
+                    {% if form.password.errors %}
+                    <div class="form-error">
+                        {{ form.password.errors.as_text }}
                     </div>
-                    <button  type="submit" id="submit-form" class="btn btn-lg btn-danger btn-block ladda-button" data-style="expand-left">{% trans "Log In" %}</button>
-
-                    <div class="clearfix">
-                        <p class="pull-left m-t-20">
-                            <!--
-                                <a id="password" href="">{% trans "Forgot your password?"%}</a></p>
-                        -->
-                    </div>
-                </form>
-            </div>
+                    {% endif %}
+                </div>
+                <button  type="submit" id="submit-form" class="btn btn-lg btn-danger btn-block ladda-button" data-style="expand-left">{% trans "Log In" %}</button>
+            </form>
         </div>
     </div>
-
-
-
-{% endblock %}
-
-{% block extra_js %}
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-{% endblock %}
+</div>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>

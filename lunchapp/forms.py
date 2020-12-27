@@ -3,7 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import ugettext_lazy as _
 
 from .constants import COUNTRY
-from .models import Profile, PlannedMenu, Meal, Employee
+from .models import Employee, Meal, Profile, PlannedMenu
 
 import datetime
 
@@ -65,7 +65,7 @@ class AddUser(forms.ModelForm):
         label=_("First name"),
         widget=forms.TextInput(attrs={
             'class': 'form-control form-white cpy-name',
-            'placeholder': _('First Name'),
+            'placeholder': _('First name'),
             'aria-required': 'true'
         })
     )
@@ -73,7 +73,7 @@ class AddUser(forms.ModelForm):
         label=_("last name"),
         widget=forms.TextInput(attrs={
             'class': 'form-control form-white cpy-name',
-            'placeholder': _('Larst Name'),
+            'placeholder': _('Last Name'),
             'aria-required': 'true'
         })
     )

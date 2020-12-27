@@ -8,6 +8,7 @@ of a management system to coordinate the meal delivery for Cornershop employees.
   
 python 3.6, Django 2.2
 
+
 - Create Slack APP:
 1. create a new Slack App on api.slack.com.
 2. Type in your app name.
@@ -19,8 +20,11 @@ python 3.6, Django 2.2
 7. add the channel to settings CHANNEL_ID
 - Install requirements 
   > pip3 install -r requirement.txt
-  > 
-
+  >
+- Configure Postgres database by adding the parameters to env var as shown in example .envvar
+- Excute 
+  > python3 manage.py migrate
+  >
 - Execute a script to create admin user (Admin of app not of django)
 from python shell (python3 manage.py shell)
   >from lunchapp.models import Profile
@@ -30,5 +34,5 @@ from python shell (python3 manage.py shell)
   > profile.set_password("123456789")
   > profile.save()
   > 
-- Now go to login page and login into Admin interface 
+- Now go to the home page and then login page and log into Admin interface 
   when you can add one responsible and all employees

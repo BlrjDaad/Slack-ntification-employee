@@ -1,0 +1,225 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-12-27 11:50+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: lunchapp/constants.py:6
+msgid "French"
+msgstr "Français"
+
+#: lunchapp/constants.py:7
+msgid "English"
+msgstr "Anglais"
+
+#: lunchapp/constants.py:12
+msgid "Chile"
+msgstr "Chile"
+
+#: lunchapp/constants.py:13
+msgid "Brazil"
+msgstr "Brézil"
+
+#: lunchapp/constants.py:14
+msgid "Canada"
+msgstr "Canada"
+
+#: lunchapp/constants.py:15
+msgid "Peru"
+msgstr "Pérou"
+
+#: lunchapp/constants.py:16
+msgid "Mexico"
+msgstr "Mexique"
+
+#: lunchapp/constants.py:17
+msgid "United states"
+msgstr "États Unis"
+
+#: lunchapp/forms.py:16
+msgid "E-mail"
+msgstr "email"
+
+#: lunchapp/forms.py:25 lunchapp/forms.py:29
+msgid "Password"
+msgstr "mot de passe"
+
+#: lunchapp/forms.py:33
+#, python-format
+msgid ""
+"Please enter the correct %(username)s and password for business account. "
+"Note that both fields may be case-sensitive."
+msgstr ""
+"Veuillez saisir les %(username) et le mot de passe corrects pour le compte "
+"professionnel. Noter que les deux champs peuvent être sensibles à la casse."
+
+#: lunchapp/forms.py:58
+msgid "E-mail Address"
+msgstr "addresse email"
+
+#: lunchapp/forms.py:65 lunchapp/forms.py:68 lunchapp/models.py:27
+msgid "First name"
+msgstr "Prénom"
+
+#: lunchapp/forms.py:73
+msgid "last name"
+msgstr "Nom"
+
+#: lunchapp/forms.py:76
+msgid "Last Name"
+msgstr "Nom"
+
+#: lunchapp/forms.py:81
+msgid "Phone"
+msgstr "Telephone"
+
+#: lunchapp/forms.py:90 lunchapp/forms.py:94 lunchapp/models.py:56
+msgid "Country"
+msgstr "Pays"
+
+#: lunchapp/forms.py:101
+msgid "is_active"
+msgstr "is_active"
+
+#: lunchapp/forms.py:105
+msgid "is_responsible"
+msgstr "is_responsible"
+
+#: lunchapp/forms.py:109
+msgid "is_employee"
+msgstr "is_employee"
+
+#: lunchapp/forms.py:157
+msgid "preferred meal"
+msgstr "repas préféré"
+
+#: lunchapp/models.py:22
+msgid "email address"
+msgstr "addresse email"
+
+#: lunchapp/models.py:29
+msgid "Enter the first name"
+msgstr "Entrer le Prenom"
+
+#: lunchapp/models.py:34
+msgid "Last name"
+msgstr "Nom"
+
+#: lunchapp/models.py:36
+msgid "Enter the last name"
+msgstr "Entrer le Nome"
+
+#: lunchapp/models.py:41
+msgid "Language"
+msgstr "Langue"
+
+#: lunchapp/models.py:45
+msgid "Choose your preferred language"
+msgstr "Choisir la langue"
+
+#: lunchapp/models.py:48
+msgid "Phone number"
+msgstr "Telephone"
+
+#: lunchapp/models.py:50
+msgid "Enter the phone number"
+msgstr "Entrer le numero de telephone"
+
+#: lunchapp/models.py:58
+msgid "Choose the country of the employee"
+msgstr "Choisir le pays de l'employée"
+
+#: lunchapp/models.py:72
+msgid "the principal meal"
+msgstr "Le répas principal"
+
+#: lunchapp/models.py:74
+msgid "Enter the name of the principal meal"
+msgstr "Entrer le nom de répas principal"
+
+#: lunchapp/models.py:77
+msgid "salad"
+msgstr "salade"
+
+#: lunchapp/models.py:79
+msgid "Enter the name of the salad"
+msgstr "Entrer le nom de salade"
+
+#: lunchapp/models.py:81
+msgid "dessert"
+msgstr "dessert"
+
+#: lunchapp/models.py:83
+msgid "Enter the name of the dessert"
+msgstr "Entrer le nom de dessert"
+
+#: lunchapp/models.py:87
+msgid "date joined"
+msgstr "Date "
+
+#: lunchapp/models.py:89
+msgid "UUID Menu"
+msgstr "UUID menu"
+
+#: lunchapp/models.py:121
+msgid "Employee customizations"
+msgstr "personnalisations de l'employee"
+
+#: lunchapp/views.py:46
+msgid "Welcome to your Cornershop account"
+msgstr "Bienvenue a votre compte Cornershop"
+
+#: lunchapp/views.py:73
+msgid "Your Are disconnected from Cornershop."
+msgstr "Vous etes deconnecté de votre compte Cornershop"
+
+#: templates/add_new_menu.html:6 templates/add_new_user.html:6
+msgid "Add new Menu"
+msgstr "Ajout un nouveau menu"
+
+#: templates/add_new_menu.html:39 templates/add_new_user.html:89
+#: templates/dashboard-employee.html:38
+msgid "Submit"
+msgstr "Soumettre"
+
+#: templates/add_new_menu.html:55
+msgid "New meal"
+msgstr "Nouveau repas"
+
+#: templates/add_new_menu.html:95
+msgid "Create"
+msgstr "Creer"
+
+#: templates/dashboard-admin.html:6 templates/dashboard-responsible.html:6
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+#: templates/menu_of_the_day.html:4
+msgid "Today's Menu"
+msgstr "Menu d'aujourd'hui"
+
+#: templates/sign_in.html:5
+msgid "Login account"
+msgstr "Compte Login"
+
+#: templates/sign_in.html:14
+msgid "Log in to your account Cornershop"
+msgstr "Log in"
+
+#: templates/sign_in.html:36
+msgid "Log In"
+msgstr "Log In"

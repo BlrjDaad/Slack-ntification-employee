@@ -34,15 +34,15 @@ h3{
 <div class="sidenav">
     <h3>{{ request.user.first_name }} {{ request.user.last_name }}</h3>
     {% if request.user.is_admin %}
-        <a href="{% url 'dashboard-admin' request.user.pk %}">Dashboard</a>
-        <a href="{% url 'add-user' %}">Add new user</a>
-        <a href="{% url 'logout' %}">Log out</a>
-    {% elif request.user.is_responsible %}
-        <a href="{% url 'dashboard-responsible' request.user.pk %}">Dashboard</a>
-        <a href="{% url 'add-menu' %}">Add new menu</a>
-        <a href="{% url 'logout' %}">Log out</a>
-    {% else %}
-        <a href="{% url 'dashboard-employee' request.user.pk %}">Dashboard</a>
-        <a href="{% url 'logout' %}">Log out</a>
+        <a href="{% url 'dashboard-admin' request.user.pk %}">Dashboard Admin</a>
+        <a href="{% url 'add-user' request.user.pk %}">Add new user</a>
     {% endif %}
+    {% if request.user.is_responsible %}
+        <a href="{% url 'dashboard-responsible' request.user.pk %}">Dashboard Responsible</a>
+        <a href="{% url 'add-menu' request.user.pk %}">Add new menu</a>
+    {% endif %}
+    {% if   request.user.is_employee %}
+        <a href="{% url 'dashboard-employee' request.user.pk %}">Dashboard</a>
+    {% endif %}
+    <a href="{% url 'logout' %}">Log out</a>
 </div>

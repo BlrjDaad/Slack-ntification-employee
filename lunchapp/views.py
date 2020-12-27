@@ -1,16 +1,19 @@
 from __future__ import absolute_import, unicode_literals
+
 from django.contrib.auth import login as auth_login, logout as auth_logout
-from django.contrib.messages import info, error
-from django.shortcuts import reverse, get_object_or_404, redirect
-from django.http import HttpResponseRedirect
+from django.contrib.messages import error, info
+from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, reverse, redirect
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
-from django.views.generic import TemplateView, RedirectView
+from django.views.generic import RedirectView, TemplateView
 from django.views.generic.edit import FormView, View
 
-from .forms import AddMenu, CustomizationEmployee, LoginClientForm, AddNewMeal, AddUser
+from .decorators import admin_user_required, employee_user_required, responsible_user_required
+from .forms import AddMenu, AddNewMeal, AddUser, CustomizationEmployee, LoginClientForm
 from .models import Employee, Responsible, Meal, PlannedMenu, Profile
-from .utils import send_msg_with_the_menu
+from .utils import invite_to_channel
 
 import datetime
 import logging
@@ -19,7 +22,11 @@ import pytz
 logger = logging.Logger(__name__)
 
 
-class LoginClientView(FormView):
+class HomeView(TemplateView):
+    template_name = './home_page.html'
+
+
+class LoginView(FormView):
     template_name = "./sign_in.html"
     form_class = LoginClientForm
 
@@ -28,7 +35,7 @@ class LoginClientView(FormView):
         """
         Function that will be executed  before the View login
         """
-        return super(LogoutClientView, self).dispatch(request, *args, **kwargs)
+        return super(LoginView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         """
@@ -56,7 +63,7 @@ class LoginClientView(FormView):
         return response
 
 
-class LogoutClientView(RedirectView):
+class LogoutView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         """
@@ -72,24 +79,7 @@ class LogoutClientView(RedirectView):
         """
         Function that will be executed  before the View login
         """
-        return super(LogoutClientView, self).dispatch(request, *args, **kwargs)
-
-
-class DashboardResponsibleView(TemplateView):
-    template_name = "./dashboard-responsible.html"
-
-    def get_context_data(self, **kwargs):
-        """
-        prepare context for the dashboard responsible (all employees with their preferred meal and customizations)
-        :param kwargs:
-        :return: dict of all users
-        """
-        context = super(DashboardResponsibleView, self).get_context_data(**kwargs)
-        responsible = Responsible.objects.get(user__pk=kwargs.get('user_id'))
-        employees = Employee.objects.all()
-        context['responsible'] = responsible
-        context['employees'] = employees
-        return context
+        return super(LogoutView, self).dispatch(request, *args, **kwargs)
 
 
 class DashboardAdminView(TemplateView):
@@ -106,13 +96,121 @@ class DashboardAdminView(TemplateView):
         context['profiles'] = profiles
         return context
 
+    @method_decorator(admin_user_required)
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Function that will be executed  before the View login in this view it will check if
+        the user is authenticated and responsible
+        """
+        super(DashboardAdminView, self).dispatch(request, *args, **kwargs)
+        connected_profile = get_object_or_404(Profile, pk=self.kwargs.get('user_id'))
+        if not connected_profile.is_admin:
+            logger.error('User not allowed user.email %s' % request.user.email)
+            return HttpResponseForbidden('<h1>Forbidden</h1>')
+        return super(DashboardAdminView, self).dispatch(request, *args, **kwargs)
 
-class SubmitReminder(View):
-    def post(self, request):
+
+class AddingUserView(FormView):
+    template_name = "./add_new_user.html"
+    form_class = AddUser
+
+    def form_valid(self, form):
+        """
+        :param form:
+        :return: create new user Admin side if user not found from email it will create a new one if every thing goes
+        ok it will return a success msg into interface else error message
+        """
+        try:
+            Profile.objects.get(form.cleaned_data.get('email'))
+            error(self.request, 'User already exist with that email')
+            return HttpResponseRedirect(reverse('add-user', kwargs={
+                'user_id': self.request.user.pk
+            }))
+        except Exception as e:
+            logger.info("User not found creating...")
+
+        if len(Responsible.objects.all()) > 0 and form.cleaned_data.get('is_responsible'):
+            error(self.request, 'One responsible is allowed and he is already created')
+            return HttpResponseRedirect(reverse('add-user'))
+        try:
+            profile = Profile.objects.create(email=form.cleaned_data.get('email'),
+                                             first_name=form.cleaned_data.get('first_name'),
+                                             last_name=form.cleaned_data.get('last_name'),
+                                             phone=form.cleaned_data.get('phone'),
+                                             country=form.cleaned_data.get('country'),
+                                             is_active=form.cleaned_data.get('is_active'),
+                                             is_responsible=form.cleaned_data.get('is_responsible'),
+                                             is_employee=form.cleaned_data.get('is_employee'))
+            if form.cleaned_data.get('is_responsible'):
+                Responsible.objects.create(user=profile)
+            if form.cleaned_data.get('is_employee'):
+                Employee.objects.create(user=profile)
+            info(self.request, 'User successfully created')
+            # Only employee from Chile are invited to slack channel of the menu notifier
+            if profile.country == 'Chile':
+                invite_to_channel(profile.email)
+
+        except Exception as e:
+            error(self.request, 'Error creating new user the error is %s' % e)
+        return HttpResponseRedirect(reverse('add-user',  kwargs={
+            'user_id': self.request.user.pk
+        }))
+
+    @method_decorator(admin_user_required)
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Function that will be executed  before the View login in this view it will check if
+        the user is authenticated and responsible
+        """
+        super(AddingUserView, self).dispatch(request, *args, **kwargs)
+        connected_profile = get_object_or_404(Profile, pk=kwargs.get('user_id'))
+        if not connected_profile.is_admin:
+            logger.error('User not allowed user.email %s' % request.user.email)
+            return HttpResponseForbidden('<h1>Forbidden</h1>')
+        return super(AddingUserView, self).dispatch(request, *args, **kwargs)
+
+
+class LoginRequiredResponsible(View):
+
+    @method_decorator(responsible_user_required)
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Function that will be executed  before the View login in this view it will check if
+        the user is authenticated and responsible
+        """
+        super(LoginRequiredResponsible, self).dispatch(request, *args, **kwargs)
+        connected_profile = get_object_or_404(Responsible, user=request.user)
+        if not connected_profile.user.is_responsible:
+            logger.error('User not allowed user.email %s' % request.user.email)
+            return HttpResponseForbidden('<h1>Forbidden</h1>')
+        return super(LoginRequiredResponsible, self).dispatch(request, *args, **kwargs)
+
+
+class DashboardResponsibleView(LoginRequiredResponsible, TemplateView):
+    template_name = "./dashboard-responsible.html"
+
+    def get_context_data(self, **kwargs):
+        """
+        prepare context for the dashboard responsible (all employees with their preferred meal and customizations)
+        :param kwargs:
+        :return: dict of all users
+        """
+        context = super(DashboardResponsibleView, self).get_context_data(**kwargs)
+        responsible = get_object_or_404(Responsible, user__pk=kwargs.get('user_id'))
+        employees = Employee.objects.all()
+        context['responsible'] = responsible
+        context['employees'] = employees
+        return context
+
+
+class SubmitReminder(LoginRequiredResponsible):
+
+    def post(self, request, *args, **kwargs):
         """
         :param request: the request
         :return: msg with the status of the reminder
         """
+        responsible = get_object_or_404(Responsible, user=request.user)
         try:
             planned_menu = PlannedMenu.objects.get(planned_date=datetime.date.today())
         except PlannedMenu.DoesNotExist:
@@ -121,7 +219,7 @@ class SubmitReminder(View):
 
         message = 'You found Today menu flowing this link \n http://nora.cornershop.com/menu/%s' \
                   % planned_menu.uuid_menu
-        response = send_msg_with_the_menu(message)
+        response = responsible.send_msg_with_the_menu(message)
         msg = "Successfully sent it to Chilean employees in the slack channel" if response \
             else "Error sending reminder please try again or the admin will react"
         info(self.request, _(msg))
@@ -130,7 +228,7 @@ class SubmitReminder(View):
         }))
 
 
-class AddingMenuView(FormView):
+class AddingMenuView(LoginRequiredResponsible, FormView):
     template_name = "./add_new_menu.html"
     form_class = AddMenu
 
@@ -159,43 +257,24 @@ class AddingMenuView(FormView):
         return HttpResponseRedirect(reverse('menu_of_the_day', kwargs={'uuid_menu': planned_menu.uuid_menu}))
 
 
-class AddingUserView(FormView):
-    template_name = "./add_new_user.html"
-    form_class = AddUser
+class AddMeal(LoginRequiredResponsible, FormView):
+    template_name = ""
+    form_class = AddNewMeal
 
     def form_valid(self, form):
         """
-        :param form:
-        :return: create new user Admin side if user not found from email it will create a new one if every thing goes
-        ok it will retrun a success msg into interface else error message
+        function to add new meal to the meals option it will return a msg with the creation's status
+        :param form: the form of creating new meal
+        :return:
         """
         try:
-            Profile.objects.get(form.cleaned_data.get('email'))
-            error(self.request, 'User already exist with that email')
-            return HttpResponseRedirect(reverse('add-user'))
-        except :
-            logger.info("User not found creating")
-        if len(Responsible.objects.all()) > 0 and form.cleaned_data.get('is_responsible'):
-            error(self.request, 'One responsible is allowed and already created')
-            return HttpResponseRedirect(reverse('add-user'))
-        try:
-            profile = Profile.objects.create(email=form.cleaned_data.get('email'),
-                                             first_name=form.cleaned_data.get('first_name'),
-                                             last_name=form.cleaned_data.get('last_name'),
-                                             phone=form.cleaned_data.get('phone'),
-                                             country=form.cleaned_data.get('country'),
-                                             is_active=form.cleaned_data.get('is_active'),
-                                             is_responsible=form.cleaned_data.get('is_responsible'),
-                                             is_employee=form.cleaned_data.get('is_employee'))
-            if form.cleaned_data.get('is_reponsible'):
-                Responsible.objects.create(user=profile)
-            if form.cleaned_data.get('is_employee'):
-                Employee.objects.create(user=profile)
-
-            info(self.request, 'User successfully created')
+            Meal.objects.create(principal_meal=form.cleaned_data.get('principal_meal'),
+                                salad=form.cleaned_data.get('salad'),
+                                dessert=form.cleaned_data.get('dessert'))
+            info(self.request, 'New meal created, please refresh to get it in menu')
         except Exception as e:
-            error(self.request, 'Error creating new user the error is %s' % e)
-        return HttpResponseRedirect(reverse('add-user'))
+            error(self.request, 'Error in creating meal %s' % e)
+        return redirect(reverse('add-menu', kwargs={'user_id': self.request.user.pk}))
 
 
 class DashboardEmployeeView(FormView):
@@ -213,28 +292,33 @@ class DashboardEmployeeView(FormView):
         """
         :return: the detail of the connected employee into form to edit
         """
+        employee = self.get_object()
         try:
-            employee = Employee.objects.get(user__id=self.kwargs.get('user_id'))
-            try:
-                planned_menu = PlannedMenu.objects.get(planned_date=datetime.date.today())
-            except PlannedMenu.DoesNotExist:
-                logger.error("Object doesn't exist, getting default menu")
-                planned_menu = PlannedMenu.objects.all().first()
-            return {'preferred_meal': employee.preferred_meal.pk if (employee.preferred_meal.pk
-                                                                     and employee.preferred_meal
-                                                                     in planned_menu.meals.all()) else '',
-                    'customizations': employee.customizations
-                    }
-        except Exception as e:
-            logger.error("Error in getting initial data %s" % e)
-            return {'preferred_meal': '',
-                    'customizations': ''
-                    }
+            planned_menu = PlannedMenu.objects.get(planned_date=datetime.date.today())
+            preferred_meal = employee.preferred_meal.pk if (employee.preferred_meal.pk
+                                                            and employee.preferred_meal
+                                                            in planned_menu.meals.all()) else ''
+            customizations = employee.customizations
+        except PlannedMenu.DoesNotExist:
+            logger.error("Object doesn't exist, getting default menu")
+            planned_menu = PlannedMenu.objects.all().first()
+            preferred_meal = employee.preferred_meal.pk if (employee.preferred_meal.pk
+                                                            and employee.preferred_meal
+                                                            in planned_menu.meals.all()) else ''
+            customizations = employee.customizations
+
+        except:
+            preferred_meal = customizations = ''
+
+        return {'preferred_meal': preferred_meal,
+                'customizations': customizations
+                }
 
     def form_valid(self, form):
         """
-        :param form:
-        :return:
+        :param form: the form of choosing custom meal of to indicate some customizations
+        :return: the same view but with the new customizations indicated by the user if time didn't pass 11 AM CLT
+         else nothing will be saved and msg will be return
         """
         tz_clt = pytz.timezone('Chile/Continental')
         date_time_chile = datetime.datetime.now(tz_clt).strftime('%H:%M')
@@ -243,9 +327,7 @@ class DashboardEmployeeView(FormView):
             return HttpResponseRedirect(reverse('dashboard-employee', kwargs={
                 'user_id': self.request.user.pk
             }))
-        print(form.cleaned_data)
         employee = self.get_object()
-        print('preferred_meal' in form.cleaned_data.keys() and form.cleaned_data.get('preferred_meal'))
         if 'preferred_meal' in form.cleaned_data.keys() and form.cleaned_data.get('preferred_meal'):
             employee.preferred_meal = Meal.objects.get(pk=form.cleaned_data.get('preferred_meal'))
         if 'customizations' in form.cleaned_data.keys() and form.cleaned_data.get('customizations'):
@@ -255,16 +337,18 @@ class DashboardEmployeeView(FormView):
             'user_id': self.request.user.pk
         }))
 
-    def form_invalid(self, form):
+    @method_decorator(employee_user_required)
+    def dispatch(self, request, *args, **kwargs):
         """
-        :param form:
-        :return:
+        Function that will be executed  before the View login in this view it will check if
+        the user is authenticated and employee
         """
-        print("invalid")
-        print(form.cleaned_data)
-        return HttpResponseRedirect(reverse('dashboard-employee', kwargs={
-            'user_id': self.request.user.pk
-        }))
+        super(DashboardEmployeeView, self).dispatch(request, *args, **kwargs)
+        connected_profile = get_object_or_404(Employee, user=request.user)
+        if not connected_profile.user.is_employee:
+            logger.error('User not allowed user.email %s' % request.user.email)
+            return HttpResponseForbidden('<h1>Forbidden</h1>')
+        return super(DashboardEmployeeView, self).dispatch(request, *args, **kwargs)
 
 
 class MenuDayView(TemplateView):
@@ -272,32 +356,10 @@ class MenuDayView(TemplateView):
 
     def get_context_data(self, **kwargs):
         """
-        :param kwargs:
-        :return:
+        :param kwargs: contains uuid of the menu
+        :return: Context of the public page with the menu of the day
         """
         context = super(MenuDayView, self).get_context_data(**kwargs)
-        planned_menu = PlannedMenu.objects.get(uuid_menu=kwargs.get('uuid_menu'))
+        planned_menu = get_object_or_404(PlannedMenu, uuid_menu=kwargs.get('uuid_menu'))
         context['menu_of_day'] = planned_menu
         return context
-
-
-class AddMeal(FormView):
-
-    form_class = AddNewMeal
-
-    def form_valid(self, form):
-        """
-        :param form:
-        :return:
-        """
-        print("valid form")
-        print(form.cleaned_data)
-        meal = Meal.objects.create(principal_meal=form.cleaned_data.get('principal_meal'),
-                                   salad=form.cleaned_data.get('salad'),
-                                   dessert=form.cleaned_data.get('dessert'))
-        return redirect(reverse('add-menu'))
-
-    def form_invalid(self, form):
-        print("invalid form")
-        print(form.cleaned_data)
-        return HttpResponseRedirect(reverse('add-menu'))

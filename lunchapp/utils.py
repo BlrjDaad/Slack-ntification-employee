@@ -1,23 +1,8 @@
-from slack import WebClient
 from django.conf import settings
+from slack import WebClient
+
 import logging
 logger = logging.Logger(__name__)
-
-
-def send_msg_with_the_menu(message):
-    """
-    Send Message reminder to all slack user with the day menu
-    :param message: the message to send
-    :return: True if there's no error in the sending process else False
-    """
-    try:
-        slack_client = WebClient(settings.SLACK_BOT_TOKEN)
-        slack_client.chat_postMessage(channel=settings.CHANNEL_ID, text=message)
-        logger.info("Slack reminder sent")
-        return True
-    except Exception as e:
-        logger.error("Error in sending slack reminder %s" % e)
-        return False
 
 
 def invite_to_channel(email):

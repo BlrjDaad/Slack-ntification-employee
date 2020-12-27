@@ -36,7 +36,7 @@
 
         <div class="form-group">
             <div class="col-md-10 col-sm-9 col-xs-12 col-md-push-2 col-sm-push-3 col-xs-push-0 pull-right s15">
-                <button class="btn btn-primary" type="submit">{% trans "Continue" %}</button>
+                <button class="btn btn-primary" type="submit">{% trans "Submit" %}</button>
             </div>
         </div>
     </div>
@@ -59,7 +59,7 @@
             </div>
 
             <!--Body-->
-            <form action="{% url 'add-meal' %}" method="POST" >
+            <form action="{% url 'add-meal' request.user.pk %}" method="POST" >
                 {% csrf_token %}
                 <div class="modal-body">
 
