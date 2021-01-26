@@ -1,7 +1,7 @@
-# Cornershop's Backend Test
+# Simple account 
 
-This technical test requires the design and implementation (using Django)
-of a management system to coordinate the meal delivery for Cornershop employees.
+This project requires the design and implementation (using Django)
+of a management system to coordinate the meal delivery for employees.
 
 ## Steps to go:
 - Project requirement 
